@@ -1,0 +1,3 @@
+[submodule "acnh_api"]
+	path = acnh_api
+	url = https://github.com/anthonysea/acnh_api
