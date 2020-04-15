@@ -1,12 +1,16 @@
 import React, { Component } from 'react';
 import axios from 'axios'
 import './App.css';
+import { debounce } from 'lodash'
+const fuse = require("fuse.js")
 
 const PATH_BASE = 'http://localhost:5000'
 const FISH = '/fish'
 const BUGS = '/bugs'
 const FOSSILS = '/fossils'
 const VILLAGERS = '/villagers'
+
+
 
 class App extends Component{
 
@@ -22,6 +26,7 @@ class App extends Component{
     }
 
     this.fetchData = this.fetchData.bind(this)
+    this.fuzzySearch = this.fuzzySearch.bind(this)
   }
 
   componentDidMount() {
@@ -44,16 +49,33 @@ class App extends Component{
     }))
   }
 
+  debounceEventHandler(...args) {
+    const debounced = debounce(...args)
+    return function(e) {
+      e.persist()
+      return debounced(e)
+    }
+  }
+
+  fuzzySearch(event) { 
+    console.log(`fuzzy search called, event.target.value: ${event.target.value}`)
+    this.setState({ searchTerm: event.target.value })
+    
+  }
+
   render() {
-    const { searchTerm } = this.state
     return (
-      <Search/>
+      <Search
+        onChange={this.debounceEventHandler(this.fuzzySearch, 500)}
+      >
+      Search
+      </Search>
     );
   }
 }
 
 const Search = ({value, onChange, onSubmit, children}) =>
-  <form onsubmit={onSubmit}>
+  <form onSubmit={onSubmit}>
     {children}
     <input type="text"
       onChange={onChange}
@@ -64,3 +86,6 @@ const Search = ({value, onChange, onSubmit, children}) =>
   </form>
 
 export default App;
+
+
+
