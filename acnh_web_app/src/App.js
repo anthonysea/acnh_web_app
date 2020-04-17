@@ -33,7 +33,7 @@ function App() {
   const searchList = fish.concat(bugs, fossils, villagers)
   const fuseOpts = {
     isCaseSensitive: false,
-    shouldShort: true,
+    shouldSort: true,
     minMatchCharLength: 3,
     includeScore: true,
     threshold: 0.3,
@@ -77,7 +77,7 @@ function App() {
   // Callback to set the query value. This is debounced in the Search component
   const handleChange = (value) => {
     console.log("handleChange called, calling setQuery")
-    setQuery(value)
+    if (value.length >= 3) setQuery(value)
   }
 
   return (
@@ -113,9 +113,11 @@ function App() {
 const ResultsTable = ({results}) => {
   return (
     <Table bordered>
-      {results && results.map((value, index) => {
-        return <ResultsItem key={index} item={value.item} />
-      })}
+      <tbody>
+        {results && results.map((value, index) => {
+          return <ResultsItem key={index} item={value.item} />
+        })}
+      </tbody>
     </Table>
   )
 }
@@ -128,7 +130,9 @@ const ResultsItem = ({item}) => {
         null
       }
       <td>{item.name}</td>
-      <td></td>
+      {Object.entries(item).map(([key, value]) => {
+        return <td>{item.key}</td>
+      })}
     </tr>
   )
 }
