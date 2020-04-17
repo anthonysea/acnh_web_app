@@ -13,6 +13,8 @@ import Jumbotron from 'react-bootstrap/Jumbotron';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup'
 import Button from 'react-bootstrap/Button';
+import Table from 'react-bootstrap/Table';
+import Image from 'react-bootstrap/Image';
 
 // CSS
 import './App.css'
@@ -110,18 +112,24 @@ function App() {
 
 const ResultsTable = ({results}) => {
   return (
-    <ul>
+    <Table bordered>
       {results && results.map((value, index) => {
-        // return <li key={index}>{value.item.name}</li>
         return <ResultsItem key={index} item={value.item} />
       })}
-    </ul>
+    </Table>
   )
 }
 
 const ResultsItem = ({item}) => {
   return (
-    <li key={item.id}>{item.name}</li>
+    <tr>
+      {item.image_url ? 
+        <td><Image src={item.image_url} height="100" width="100" rounded></Image></td> :
+        null
+      }
+      <td>{item.name}</td>
+      <td></td>
+    </tr>
   )
 }
 
