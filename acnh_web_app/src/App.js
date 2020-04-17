@@ -34,7 +34,7 @@ function App() {
     shouldShort: true,
     minMatchCharLength: 3,
     includeScore: true,
-    threshold: 0.6,
+    threshold: 0.3,
     keys: [
       "name",
       "location",
@@ -112,9 +112,16 @@ const ResultsTable = ({results}) => {
   return (
     <ul>
       {results && results.map((value, index) => {
-        return <li key={index}>{value.item.name}</li>
+        // return <li key={index}>{value.item.name}</li>
+        return <ResultsItem key={index} item={value.item} />
       })}
     </ul>
+  )
+}
+
+const ResultsItem = ({item}) => {
+  return (
+    <li key={item.id}>{item.name}</li>
   )
 }
 
