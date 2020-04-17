@@ -7,10 +7,15 @@ import Fuse from "fuse.js";
 // Bootstrap and React-Bootstrap imports
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 import Jumbotron from 'react-bootstrap/Jumbotron';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup'
 import Button from 'react-bootstrap/Button';
+
+// CSS
+import './App.css'
 
 const PATH_BASE = 'http://localhost:5000'
 const FISH = '/fish'
@@ -31,7 +36,11 @@ function App() {
     includeScore: true,
     threshold: 0.6,
     keys: [
-      "name"
+      "name",
+      "location",
+      "fossil_type",
+      "species",
+      "personality",
     ]
   }
   const fuse = new Fuse(searchList, fuseOpts)
@@ -59,7 +68,7 @@ function App() {
   // Side effect on query to update searchResults array
   useEffect(() => {
     console.log(query)
-    setSearchResults(fuse.search(query).slice(0,10))
+    setSearchResults(fuse.search(query))
     console.log(searchResults)
   }, [query])
 
@@ -71,19 +80,41 @@ function App() {
 
   return (
     <Container className="p-3">
-      <Search
-        value={query}
-        onChange={handleChange}
-      >
-        Search
-      </Search>
-      <ul>
-        {searchResults && searchResults.map((value, index) => {
-          return <li key={index}>{value.item.name}</li>
-        })}
-      </ul>
+
+      <Jumbotron className="header">
+        <h2>Animal Crossing: New Horizons Info Guide</h2>
+      </Jumbotron>
+      
+
+      <Row>
+        <Col>
+          <Search
+            value={query}
+            onChange={handleChange}
+          >
+            Search
+          </Search>
+        </Col>
+        
+      </Row>
+
+      <Row> 
+        <Col> 
+          <ResultsTable results={searchResults}/>
+        </Col>
+      </Row>
+
     </Container>
-    
+  )
+}
+
+const ResultsTable = ({results}) => {
+  return (
+    <ul>
+      {results && results.map((value, index) => {
+        return <li key={index}>{value.item.name}</li>
+      })}
+    </ul>
   )
 }
 
