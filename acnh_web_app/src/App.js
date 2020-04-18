@@ -34,7 +34,9 @@ function App() {
   const [bugs, setBugs] = useState([])
   const [fossils, setFossils] = useState([])
   const [villagers, setVillagers] = useState([])
-  const searchList = fish.concat(bugs, fossils, villagers)
+  const [currentCategory, setCurrentCategory] = useState('fish')
+  const [searchList, setSearchList] = useState(fish)
+  // const searchList = fish.concat(bugs, fossils, villagers)
   const fuseOpts = {
     isCaseSensitive: false,
     shouldSort: true,
@@ -64,6 +66,7 @@ function App() {
         setBugs(bugsRes.data)
         setFossils(fossilsRes.data)
         setVillagers(villagersRes.data)
+        setSearchList(fishRes.data)
       }))
     }
     fetchData()
@@ -80,9 +83,25 @@ function App() {
   }, [query])
 
   // Callback to set the query value. This is debounced in the Search component
-  const handleChange = (value) => {
+  const handleQueryChange = (value) => {
     console.log("handleChange called, calling setQuery")
     if (value.length >= 3) setQuery(value)
+  }
+
+  const handleCategoryChange = (value) => {
+    if (value === 'fish') {
+      setSearchList(fish)
+    }
+    else if (value === 'bugs') {
+      setSearchList(bugs)
+    }
+    else if (value === 'fossils') {
+      setSearchList(fossils)
+    }
+    else if (value === 'villagers') {
+      setSearchList(villagers)
+    }
+    setCurrentCategory(value)
   }
 
   return (
@@ -96,7 +115,9 @@ function App() {
         <Col>
           <Search
             value={query}
-            onChange={handleChange}
+            onQueryChange={handleQueryChange}
+            category={currentCategory}
+            onCategoryChange={handleCategoryChange}
           >
             Search
           </Search>
@@ -152,14 +173,14 @@ const ResultsItem = ({item, index}) => {
   )
 }
 
-const Search = ({query, onChange, onSubmit, children}) => {
+const Search = ({query, onQueryChange, category, onCategoryChange, children}) => {
 
+  // categories array used to update the dropdown item choices
   const categories = ['fish', 'bugs', 'fossils', 'villagers']
-  const [category, setCategory] = useState(categories[0])
-  const [debouncedCallback] = useDebouncedCallback(onChange, 300)
+  const [debouncedCallback] = useDebouncedCallback(onQueryChange, 300)
 
   return (
-    <Form onSubmit={(e) => e.preventDefault()}>
+    <Form onSubmit={(e) => {e.preventDefault()}}>
       <Form.Group>
         <InputGroup>
           <DropdownButton
@@ -168,7 +189,7 @@ const Search = ({query, onChange, onSubmit, children}) => {
             title={ category.charAt(0).toUpperCase().concat(category.slice(1)) }
           >
             {categories.filter(item => item !== category).map(item => {
-              return <Dropdown.Item value={item} onSelect={() => {setCategory(item); console.log(item)}}>{item.charAt(0).toUpperCase().concat(item.slice(1))}</Dropdown.Item>
+              return <Dropdown.Item value={item} onSelect={() => onCategoryChange(item)}>{ item.charAt(0).toUpperCase().concat(item.slice(1)) }</Dropdown.Item>
             })}
           </DropdownButton>
           <Form.Control 
