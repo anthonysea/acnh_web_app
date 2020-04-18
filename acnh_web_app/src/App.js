@@ -19,12 +19,14 @@ import Image from 'react-bootstrap/Image';
 // CSS
 import './App.css'
 
+// URL constants for backend API
 const PATH_BASE = 'http://localhost:5000'
 const FISH = '/fish'
 const BUGS = '/bugs'
 const FOSSILS = '/fossils'
 const VILLAGERS = '/villagers'
 
+// Main app entry point
 function App() {
   const [fish, setFish] = useState([])
   const [bugs, setBugs] = useState([])
@@ -35,7 +37,7 @@ function App() {
     isCaseSensitive: false,
     shouldSort: true,
     minMatchCharLength: 3,
-    includeScore: true,
+    includeScore: false,
     threshold: 0.3,
     keys: [
       "name",
@@ -43,6 +45,7 @@ function App() {
       "fossil_type",
       "species",
       "personality",
+      "group",
     ]
   }
   const fuse = new Fuse(searchList, fuseOpts)
@@ -87,7 +90,6 @@ function App() {
         <h2>Animal Crossing: New Horizons Info Guide</h2>
       </Jumbotron>
       
-
       <Row>
         <Col>
           <Search
@@ -97,7 +99,6 @@ function App() {
             Search
           </Search>
         </Col>
-        
       </Row>
 
       <Row> 
@@ -111,27 +112,39 @@ function App() {
 }
 
 const ResultsTable = ({results}) => {
+
   return (
     <Table bordered>
-      <tbody>
-        {results && results.map((value, index) => {
-          return <ResultsItem key={index} item={value.item} />
-        })}
-      </tbody>
-    </Table>
+      {results && results.map((value) => {
+        console.log(results.indexOf(value))
+        return <ResultsItem 
+                  key={value.refIndex} 
+                  item={value.item} 
+                  index={results.indexOf(value)}
+                />
+      })}
+  </Table>
   )
 }
 
-const ResultsItem = ({item}) => {
+const ResultsItem = ({item, index}) => {
+  let ignoreTitles = ["name", "image_url"]
+
+  if ((index === 0)){
+    
+  }
+
   return (
+
     <tr>
-      {item.image_url ? 
-        <td><Image src={item.image_url} height="100" width="100" rounded></Image></td> :
-        null
+      {item.image_url &&
+        <td><Image src={item.image_url} height="100" width="100" rounded></Image></td> 
       }
       <td>{item.name}</td>
+
       {Object.entries(item).map(([key, value]) => {
-        return <td>{item.key}</td>
+        if (ignoreTitles.includes(key) || !value) return null
+        return <td key={key}>{value}</td>
       })}
     </tr>
   )
@@ -145,6 +158,13 @@ const Search = ({query, onChange, onSubmit, children}) => {
     <Form onSubmit={(e) => e.preventDefault()}>
       <Form.Group>
         <InputGroup>
+          {/* <DropdownButton
+            as={InputGroup.Prepend}
+            variant={outline-secondary}
+            title=""
+          >
+
+          </DropdownButton> */}
           <Form.Control 
             type="text"
             value={query}
