@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './App.css';
-import { useDebouncedCallback } from 'use-debounce';
 import Fuse from "fuse.js";
 
 // Bootstrap and React-Bootstrap imports
@@ -10,12 +9,8 @@ import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Jumbotron from 'react-bootstrap/Jumbotron';
-import Form from 'react-bootstrap/Form';
-import InputGroup from 'react-bootstrap/InputGroup'
-import Button from 'react-bootstrap/Button';
 import Table from 'react-bootstrap/Table';
 import Image from 'react-bootstrap/Image';
-import DropdownButton from 'react-bootstrap/DropdownButton';
 
 // CSS
 import './App.css'
@@ -230,7 +225,8 @@ const ResultsItem = ({item, index}) => {
 
       {/* Use map to only render the properties that are not in ignoreTitles */}
       {Object.entries(item).map(([key, value]) => {
-        if (ignoreTitles.includes(key) || !value) return null
+        // For fossil group with fossils, want to render empty cell instead of nothing
+        if (ignoreTitles.includes(key) || (!value && (key === "shadow_size"))) return null
         return <td key={key}>{value}</td>
       })}
     </tr>
