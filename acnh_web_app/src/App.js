@@ -15,9 +15,11 @@ import InputGroup from 'react-bootstrap/InputGroup'
 import Button from 'react-bootstrap/Button';
 import Table from 'react-bootstrap/Table';
 import Image from 'react-bootstrap/Image';
+import DropdownButton from 'react-bootstrap/DropdownButton';
 
 // CSS
 import './App.css'
+import Dropdown from 'react-bootstrap/Dropdown';
 
 // URL constants for backend API
 const PATH_BASE = 'http://localhost:5000'
@@ -152,19 +154,23 @@ const ResultsItem = ({item, index}) => {
 
 const Search = ({query, onChange, onSubmit, children}) => {
 
+  const categories = ['fish', 'bugs', 'fossils', 'villagers']
+  const [category, setCategory] = useState(categories[0])
   const [debouncedCallback] = useDebouncedCallback(onChange, 300)
 
   return (
     <Form onSubmit={(e) => e.preventDefault()}>
       <Form.Group>
         <InputGroup>
-          {/* <DropdownButton
+          <DropdownButton
             as={InputGroup.Prepend}
-            variant={outline-secondary}
-            title=""
+            variant="outline-info"
+            title={ category.charAt(0).toUpperCase().concat(category.slice(1)) }
           >
-
-          </DropdownButton> */}
+            {categories.filter(item => item !== category).map(item => {
+              return <Dropdown.Item value={item} onSelect={() => {setCategory(item); console.log(item)}}>{item.charAt(0).toUpperCase().concat(item.slice(1))}</Dropdown.Item>
+            })}
+          </DropdownButton>
           <Form.Control 
             type="text"
             value={query}
