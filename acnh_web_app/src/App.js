@@ -66,6 +66,7 @@ function App() {
         setBugs(bugsRes.data)
         setFossils(fossilsRes.data)
         setVillagers(villagersRes.data)
+        // set the searchList to the fish data
         setSearchList(fishRes.data)
       }))
     }
@@ -135,9 +136,54 @@ function App() {
 }
 
 const ResultsTable = ({results}) => {
+  let headings = []
+  let ignoreTitles = []
+
+  if (results.length > 0) {
+    // Setup headings for all categories
+    headings = Object.keys(results[0].item)
+    ignoreTitles = ["id", "image_url", "critter_type"]
+    headings = headings.filter(heading => heading !== "name")
+    headings.unshift("name")
+
+    // Remove shadow_size heading for bugs
+    if (results[0].item['critter_type'] == 'bug') {
+      headings = headings.filter(heading => heading !== 'shadow_size')
+    }
+  }
+
+  const getReadableHeading = (heading) => {
+    const heading_dict = {
+      "location": "Location",
+      "name": "Name",
+      "price": "Price (Bells)",
+      "seasonality_n": "Seasonality (Northern Hemisphere)",
+      "seasonality_s": "Seasonality (Southern Hemisphere)",
+      "shadow_size": "Shadow Size",
+      "timeday": "Time Available",
+      "fossil_type": "Fossil Gype",
+      "fossil_group": "Fossil Group",
+      "personality": "Personality",
+      "species": "Species",
+      "catchphrase": "Catchphrase"
+    }
+
+    return heading_dict[heading]
+  }
 
   return (
     <Table bordered>
+      <thead>
+        <tr>
+          {results.length > 0 && <th></th>}
+          {results.length > 0 && 
+          headings.filter(heading => !ignoreTitles.includes(heading)).map((heading) => {
+            return <th key={headings.indexOf(heading)}>{getReadableHeading(heading)}</th>
+          })}
+        </tr>
+      </thead>
+
+      <tbody>
       {results && results.map((value) => {
         console.log(results.indexOf(value))
         return <ResultsItem 
@@ -146,19 +192,20 @@ const ResultsTable = ({results}) => {
                   index={results.indexOf(value)}
                 />
       })}
+      </tbody>
   </Table>
   )
 }
 
 const ResultsItem = ({item, index}) => {
-  let ignoreTitles = ["name", "image_url"]
+  let ignoreTitles = ["id", "name", "image_url", "critter_type"]
 
   if ((index === 0)){
     
   }
 
   return (
-
+    <>
     <tr>
       {item.image_url &&
         <td><Image src={item.image_url} height="100" width="100" rounded></Image></td> 
@@ -170,6 +217,8 @@ const ResultsItem = ({item, index}) => {
         return <td key={key}>{value}</td>
       })}
     </tr>
+    </>
+    
   )
 }
 
@@ -189,7 +238,7 @@ const Search = ({query, onQueryChange, category, onCategoryChange, children}) =>
             title={ category.charAt(0).toUpperCase().concat(category.slice(1)) }
           >
             {categories.filter(item => item !== category).map(item => {
-              return <Dropdown.Item value={item} onSelect={() => onCategoryChange(item)}>{ item.charAt(0).toUpperCase().concat(item.slice(1)) }</Dropdown.Item>
+              return <Dropdown.Item key={categories.indexOf(item)} value={item} onSelect={() => onCategoryChange(item)}>{ item.charAt(0).toUpperCase().concat(item.slice(1)) }</Dropdown.Item>
             })}
           </DropdownButton>
           <Form.Control 
