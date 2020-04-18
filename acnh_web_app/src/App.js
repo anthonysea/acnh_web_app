@@ -18,6 +18,9 @@ import './App.css'
 // Components
 import Search from './components/Search.js'
 
+// Utility functions
+import { getHumanReadableDate } from './lib/utils'
+
 // URL constants for backend API
 const PATH_BASE = 'http://localhost:5000'
 const FISH = '/fish'
@@ -154,9 +157,13 @@ const ResultsTable = ({results}) => {
 
     headings = Object.keys(results[0].item)
     // Setup headings for all categories
-    ignoreTitles = ["id", "image_url", "critter_type"]
+    ignoreTitles = ["id", "image_url", "critter_type", "birthdate_month", "birthdate_day"]
     headings = headings.filter(heading => heading !== "name")
     headings.unshift("name")
+    
+    if (("birthdate_month" in results[0].item) && !("birthday" in results[0].item)) {
+      headings.push("birthday")
+    }
 
     // Remove shadow_size heading for bugs
     if (results[0].item['critter_type'] === 'bug') {
@@ -178,7 +185,8 @@ const ResultsTable = ({results}) => {
       "group": "Fossil Group",
       "personality": "Personality",
       "species": "Species",
-      "catchphrase": "Catchphrase"
+      "catchphrase": "Catchphrase",
+      "birthday": "Birthday"
     }
 
     return heading_dict[heading]
@@ -212,6 +220,11 @@ const ResultsTable = ({results}) => {
 const ResultsItem = ({item, index}) => {
   // Headings that do not need to be displayed to the user
   let ignoreTitles = ["id", "name", "image_url", "critter_type"]
+
+  if ("birthdate_month" in item) {
+    item["birthday"] = getHumanReadableDate(item.birthdate_month, item.birthdate_day)
+    ignoreTitles.push("birthdate_month", "birthdate_day")
+  }
 
   return (
     <tr>

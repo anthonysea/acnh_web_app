@@ -7,6 +7,6 @@ Little Animal Crossing: New Horizons web application used to display information
 - Display birthdate_month and birthdate_day as single column displayed as month day i.e. January 1st
 - Display seasonality of critters in readable format
 - ~~Fix bug with differing headers for stand-alone and multi-part fossils~~
-- Pagination
+- ~~Pagination~~
 - Add filters to display things such as: villagers with birthdays this week/month, bugs/fish that are available this month/time of day
 - Save local data such as: villagers on your island, hemisphere, etc.
