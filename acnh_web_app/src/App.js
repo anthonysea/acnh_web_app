@@ -19,7 +19,9 @@ import DropdownButton from 'react-bootstrap/DropdownButton';
 
 // CSS
 import './App.css'
-import Dropdown from 'react-bootstrap/Dropdown';
+
+// Components
+import Search from './components/Search.js'
 
 // URL constants for backend API
 const PATH_BASE = 'http://localhost:5000'
@@ -68,19 +70,21 @@ function App() {
         setVillagers(villagersRes.data)
         // set the searchList to the fish data
         setSearchList(fishRes.data)
+        setSearchResults(fishRes.data)
+        console.log('init. searchResults: ', fishRes.data)
       }))
     }
     fetchData()
-    console.log("json data changed")
+    console.log("json data loaded")
   }, [])
 
   const [searchResults, setSearchResults] = useState([])
   const [query, setQuery] = useState("")
   // Side effect on query to update searchResults array
   useEffect(() => {
-    console.log(query)
+    console.log("query: ", query)
     setSearchResults(fuse.search(query))
-    console.log(searchResults)
+    console.log("searchResults: ", searchResults)
   }, [query])
 
   // Callback to set the query value. This is debounced in the Search component
@@ -89,27 +93,33 @@ function App() {
     if (value.length >= 3) setQuery(value)
   }
 
+  // Update the data set to search the selected category as well as update the
+  // searchResults list to point to the entire dataset on initial category selection
   const handleCategoryChange = (value) => {
     if (value === 'fish') {
+      setSearchResults(fish)
       setSearchList(fish)
     }
     else if (value === 'bugs') {
+      setSearchResults(bugs)
       setSearchList(bugs)
     }
     else if (value === 'fossils') {
+      setSearchResults(fossils)
       setSearchList(fossils)
     }
     else if (value === 'villagers') {
+      setSearchResults(villagers)
       setSearchList(villagers)
     }
     setCurrentCategory(value)
   }
 
   return (
-    <Container className="p-3">
+    <Container className="p-2">
 
       <Jumbotron className="header">
-        <h2>Animal Crossing: New Horizons Info Guide</h2>
+        <h2>🦝Animal Crossing: New Horizons Info Guide🍃</h2>
       </Jumbotron>
       
       <Row>
@@ -139,19 +149,27 @@ const ResultsTable = ({results}) => {
   let headings = []
   let ignoreTitles = []
 
+  console.log("results: ", results)
   if (results.length > 0) {
-    // Setup headings for all categories
+    // When page is first loaded, no query is selected, but we want to show the entire fish dataset.
+    // Need to alter the inital results list to follow formatting of the list returned by the fuse search for compatibility
+    if (!("item" in results[0])) {
+      results = results.map(obj => new Object({"item": obj}))
+    }
+
     headings = Object.keys(results[0].item)
+    // Setup headings for all categories
     ignoreTitles = ["id", "image_url", "critter_type"]
     headings = headings.filter(heading => heading !== "name")
     headings.unshift("name")
 
     // Remove shadow_size heading for bugs
-    if (results[0].item['critter_type'] == 'bug') {
+    if (results[0].item['critter_type'] === 'bug') {
       headings = headings.filter(heading => heading !== 'shadow_size')
     }
   }
 
+  // Utility function to get the corresponding formatted heading from the properties of the records
   const getReadableHeading = (heading) => {
     const heading_dict = {
       "location": "Location",
@@ -161,8 +179,8 @@ const ResultsTable = ({results}) => {
       "seasonality_s": "Seasonality (Southern Hemisphere)",
       "shadow_size": "Shadow Size",
       "timeday": "Time Available",
-      "fossil_type": "Fossil Gype",
-      "fossil_group": "Fossil Group",
+      "fossil_type": "Fossil Type",
+      "group": "Fossil Group",
       "personality": "Personality",
       "species": "Species",
       "catchphrase": "Catchphrase"
@@ -185,9 +203,8 @@ const ResultsTable = ({results}) => {
 
       <tbody>
       {results && results.map((value) => {
-        console.log(results.indexOf(value))
         return <ResultsItem 
-                  key={value.refIndex} 
+                  key={results.indexOf(value)} 
                   item={value.item} 
                   index={results.indexOf(value)}
                 />
@@ -198,68 +215,26 @@ const ResultsTable = ({results}) => {
 }
 
 const ResultsItem = ({item, index}) => {
+  // Headings that do not need to be displayed to the user
   let ignoreTitles = ["id", "name", "image_url", "critter_type"]
 
-  if ((index === 0)){
-    
-  }
-
   return (
-    <>
     <tr>
       {item.image_url &&
-        <td><Image src={item.image_url} height="100" width="100" rounded></Image></td> 
+        // don't want to send requests for the images in development
+        // <td><Image src={item.image_url} height="100" width="100" rounded></Image></td> 
+        <td><Image src="" height="100" width="100" rounded></Image></td> 
+
       }
       <td>{item.name}</td>
 
+      {/* Use map to only render the properties that are not in ignoreTitles */}
       {Object.entries(item).map(([key, value]) => {
         if (ignoreTitles.includes(key) || !value) return null
         return <td key={key}>{value}</td>
       })}
     </tr>
-    </>
-    
-  )
-}
-
-const Search = ({query, onQueryChange, category, onCategoryChange, children}) => {
-
-  // categories array used to update the dropdown item choices
-  const categories = ['fish', 'bugs', 'fossils', 'villagers']
-  const [debouncedCallback] = useDebouncedCallback(onQueryChange, 300)
-
-  return (
-    <Form onSubmit={(e) => {e.preventDefault()}}>
-      <Form.Group>
-        <InputGroup>
-          <DropdownButton
-            as={InputGroup.Prepend}
-            variant="outline-info"
-            title={ category.charAt(0).toUpperCase().concat(category.slice(1)) }
-          >
-            {categories.filter(item => item !== category).map(item => {
-              return <Dropdown.Item key={categories.indexOf(item)} value={item} onSelect={() => onCategoryChange(item)}>{ item.charAt(0).toUpperCase().concat(item.slice(1)) }</Dropdown.Item>
-            })}
-          </DropdownButton>
-          <Form.Control 
-            type="text"
-            value={query}
-            onChange={(e) => debouncedCallback(e.target.value)}
-            placeholder="Search for fish, bugs, fossils, and villagers"
-          />
-          <InputGroup.Append>
-            <Button variant="info" type="submit">
-              {children}
-            </Button>
-          </InputGroup.Append>
-        </InputGroup>
-        
-      </Form.Group>
-    </Form>
   )
 }
   
 export default App;
-
-
-
