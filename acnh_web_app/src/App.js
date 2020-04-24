@@ -159,8 +159,8 @@ function App() {
         <Col> 
           <ResultsTable results={paginatedResults}/>
           <ReactPaginate 
-            previousLabel={"<"}
-            nextLabel={">"}
+            previousLabel={"Previous"}
+            nextLabel={"Next"}
             breakClassName={'break-me'}
             pageCount={Math.ceil(searchResults.length / PER_PAGE)}
             marginPagesDisplayed={2}
@@ -253,6 +253,7 @@ const ResultsItem = ({item, index}) => {
   return (
     <tr>
       {item.image_url &&
+        /* ****************************************************** */
         // don't want to send requests for the images in development
         // <td><Image src={item.image_url} height="100" width="100" rounded></Image></td> 
         <td><Image src="" height="100" width="100" rounded></Image></td> 
