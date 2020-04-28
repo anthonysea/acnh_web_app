@@ -194,7 +194,7 @@ const ResultsTable = ({results}) => {
 
     headings = Object.keys(results[0].item)
     // Setup headings for all categories
-    ignoreTitles = ["id", "image_url", "critter_type", "birthdate_month", "birthdate_day"]
+    ignoreTitles = ["id", "image_url", "critter_type", "birthdate_month", "birthdate_day", "read_seasonality_n", "read_seasonality_s"]
     headings = headings.filter(heading => heading !== "name")
     headings.unshift("name")
     
@@ -209,12 +209,13 @@ const ResultsTable = ({results}) => {
     }
 
     // Move seasonality headings to end of array
-    console.log("headings before: ", headings)
-    if ((headings.includes("seasonality_n")) && (headings.includes("seasonality_s"))) {
+    if ((headings.includes("seasonality_n")) && (headings.includes("seasonality_s")) &&
+        (headings.indexOf("seasonality_s") !== (headings.length - 1))) {
       headings.push(headings.splice(headings.indexOf("seasonality_n"), 1)[0])
       headings.push(headings.splice(headings.indexOf("seasonality_s"), 1)[0])
+      console.log(headings.indexOf("seasonality_s"), headings.length - 1)
+      console.log("seasonality moved", headings.indexOf("seasonality_s") !== (headings.length - 1))
     }
-    console.log("headings after: ", headings)
   }
 
   // Utility function to get the corresponding formatted heading from the properties of the records
