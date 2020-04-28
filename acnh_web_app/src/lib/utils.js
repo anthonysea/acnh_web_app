@@ -1,5 +1,5 @@
 
-export function getHumanReadableDate(month, day) {
+export function getReadableDate(month, day) {
     let dateString = ""
 
     let ending = ""
@@ -8,9 +8,24 @@ export function getHumanReadableDate(month, day) {
     else if ([3, 23].includes(day)) ending = "rd"
     else ending = "th"
 
-    const monthArray = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+    const MONTH_ARRAY = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 
-    dateString = monthArray[month - 1] + " " + day + ending
+    dateString = MONTH_ARRAY[month - 1] + " " + day + ending
 
     return dateString
+}
+
+export function getReadableSeasonality(seasonality) {
+    const MONTH_ARRAY = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+    let seasonalityMask = []
+    let filteredMonthArray = []
+
+    seasonalityMask = Array.from(seasonality).map((month) => parseInt(month))
+
+    filteredMonthArray = MONTH_ARRAY.filter((month, i) => seasonalityMask[i])
+
+    if (filteredMonthArray.length == 12) return "All year"
+
+    
+    return filteredMonthArray.join(", ")
 }

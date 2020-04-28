@@ -20,7 +20,7 @@ import './App.css'
 import Search from './components/Search.js'
 
 // Utility functions
-import { getHumanReadableDate } from './lib/utils'
+import { getReadableDate, getReadableSeasonality } from './lib/utils'
 
 // URL constants for backend API
 const PATH_BASE = 'http://localhost:5000'
@@ -198,6 +198,7 @@ const ResultsTable = ({results}) => {
     headings = headings.filter(heading => heading !== "name")
     headings.unshift("name")
     
+    // If the item is a villager, hide the birthdate_month heading and push the birthday month heading
     if (("birthdate_month" in results[0].item) && !("birthday" in results[0].item)) {
       headings.push("birthday")
     }
@@ -206,6 +207,14 @@ const ResultsTable = ({results}) => {
     if (results[0].item['critter_type'] === 'bug') {
       headings = headings.filter(heading => heading !== 'shadow_size')
     }
+
+    // Move seasonality headings to end of array
+    console.log("headings before: ", headings)
+    if ((headings.includes("seasonality_n")) && (headings.includes("seasonality_s"))) {
+      headings.push(headings.splice(headings.indexOf("seasonality_n"), 1)[0])
+      headings.push(headings.splice(headings.indexOf("seasonality_s"), 1)[0])
+    }
+    console.log("headings after: ", headings)
   }
 
   // Utility function to get the corresponding formatted heading from the properties of the records
@@ -256,12 +265,20 @@ const ResultsTable = ({results}) => {
 
 const ResultsItem = ({item, index}) => {
   // Headings that do not need to be displayed to the user
-  let ignoreTitles = ["id", "name", "image_url", "critter_type"]
+  let ignoreTitles = ["id", "name", "image_url", "critter_type", "seasonality_n", "seasonality_s"]
 
+  // item is a villager
   if ("birthdate_month" in item) {
-    item["birthday"] = getHumanReadableDate(item.birthdate_month, item.birthdate_day)
+    item["birthday"] = getReadableDate(item.birthdate_month, item.birthdate_day)
     ignoreTitles.push("birthdate_month", "birthdate_day")
   }
+
+  // item is a critter, need to format seasonality to readable format
+  if (("seasonality_n" in item) || ("seasonality_s" in item)) {
+    item["read_seasonality_n"] = getReadableSeasonality(item.seasonality_n)
+    item["read_seasonality_s"] = getReadableSeasonality(item.seasonality_s)
+  }
+
 
   return (
     <tr>
