@@ -4,6 +4,9 @@ import './App.css';
 import Fuse from "fuse.js";
 import ReactPaginate from 'react-paginate';
 
+// Firebase client
+import firebase from './lib/firebase_client'
+
 // Bootstrap and React-Bootstrap imports
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Container from 'react-bootstrap/Container';
@@ -14,20 +17,20 @@ import Table from 'react-bootstrap/Table';
 import Image from 'react-bootstrap/Image';
 
 // CSS
-import './App.css'
+import './App.css';
 
 // Components
-import Search from './components/Search.js'
+import Search from './components/Search.js';
 
 // Utility functions
-import { getReadableDate, getReadableSeasonality } from './lib/utils'
+import { getReadableDate, getReadableSeasonality } from './lib/utils';
 
 // URL constants for backend API
-const PATH_BASE = 'http://localhost:5000'
-const FISH = '/fish'
-const BUGS = '/bugs'
-const FOSSILS = '/fossils'
-const VILLAGERS = '/villagers'
+const PATH_BASE = 'http://localhost:5000/api';
+const FISH = '/fish';
+const BUGS = '/bugs';
+const FOSSILS = '/fossils';
+const VILLAGERS = '/villagers';
 
 // Main app entry point
 function App() {
@@ -81,9 +84,19 @@ function App() {
         
       }))
     }
+
+    // const fetchDataFromFirebase = async() => {
+    //   let db = firebase.firestore()
+    //   const snapshot = await db.collection('fossils').get()
+    //   return snapshot.docs.map(doc => doc.data())
+    // }
     fetchData()
+    // console.log(fetchDataFromFirebase())
+    
     console.log(searchResults.length)
     console.log("json data loaded")
+
+
   }, [])
 
   

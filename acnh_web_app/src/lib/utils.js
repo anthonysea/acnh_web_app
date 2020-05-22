@@ -24,7 +24,7 @@ export function getReadableSeasonality(seasonality) {
 
     filteredMonthArray = MONTH_ARRAY.filter((month, i) => seasonalityMask[i])
 
-    if (filteredMonthArray.length == 12) return "All year"
+    if (filteredMonthArray.length === 12) return "All year"
 
     
     return filteredMonthArray.join(", ")
