@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import './App.css';
 import Fuse from "fuse.js";
 import ReactPaginate from 'react-paginate';
@@ -26,14 +25,16 @@ import Search from './components/Search.js';
 import { getReadableDate, getReadableSeasonality } from './lib/utils';
 
 // URL constants for backend API
-const PATH_BASE = 'http://localhost:5000/api';
-const FISH = '/fish';
-const BUGS = '/bugs';
-const FOSSILS = '/fossils';
-const VILLAGERS = '/villagers';
+// const PATH_BASE = 'http://localhost:5000/api';
+// const FISH = '/fish';
+// const BUGS = '/bugs';
+// const FOSSILS = '/fossils';
+// const VILLAGERS = '/villagers';
 
 // Main app entry point
 function App() {
+
+
   const PER_PAGE = 10
   const [fish, setFish] = useState([])
   const [bugs, setBugs] = useState([])
@@ -43,7 +44,6 @@ function App() {
   const [searchList, setSearchList] = useState(fish)
   const [searchResults, setSearchResults] = useState([])
   const [paginatedResults, setPaginatedResults] = useState([])
-
   const [offset, setOffset] = useState(0)
   // const searchList = fish.concat(bugs, fossils, villagers)
   const fuseOpts = {
@@ -64,38 +64,33 @@ function App() {
   const fuse = new Fuse(searchList, fuseOpts)
 
   /* CDM */
-  // Side effect to load in data from back end on component mounting
+  // Side effect to load in data from firestore
   useEffect(() => {
-    const fetchData = async () => {
-      await axios.all([
-        axios.get(`${PATH_BASE}${FISH}`),
-        axios.get(`${PATH_BASE}${BUGS}`),
-        axios.get(`${PATH_BASE}${FOSSILS}`),
-        axios.get(`${PATH_BASE}${VILLAGERS}`),
-      ]).then(axios.spread((fishRes, bugsRes, fossilsRes, villagersRes) => {
-        setFish(fishRes.data)
-        setBugs(bugsRes.data)
-        setFossils(fossilsRes.data)
-        setVillagers(villagersRes.data)
-        // set the searchList to the fish data on first load
-        setSearchList(fishRes.data)
-        setSearchResults(fishRes.data)
-        setPaginatedResults(fishRes.data.slice(offset * PER_PAGE, PER_PAGE))
-        
-      }))
-    }
+    const db = firebase.firestore()
 
-    // const fetchDataFromFirebase = async() => {
-    //   let db = firebase.firestore()
-    //   const snapshot = await db.collection('fossils').get()
-    //   return snapshot.docs.map(doc => doc.data())
-    // }
-    fetchData()
-    // console.log(fetchDataFromFirebase())
-    
-    console.log(searchResults.length)
-    console.log("json data loaded")
+    // get fish data and setup searchlist and results
+    db.collection('critters').where('critter_type', '==', 'fish').get().then(snapshot => {
+      let fishData = snapshot.docs.map(doc => doc.data())
+      setFish(fishData)
+      setSearchList(fishData)
+      setSearchResults(fishData)
+      setPaginatedResults(fishData.slice(offset * PER_PAGE, PER_PAGE))
+    })
 
+    // get bug data
+    db.collection('critters').where('critter_type', '==', 'bug').get().then(snapshot => {
+      setBugs(snapshot.docs.map(doc => doc.data()))
+    })
+
+    // get villager data
+    db.collection('villagers').get().then(snapshot => {
+      setVillagers(snapshot.docs.map(doc => doc.data()))
+    })
+
+    // get fossil data
+    db.collection('fossils').get().then(snapshot => {
+      setFossils(snapshot.docs.map(doc => doc.data()))
+    })
 
   }, [])
 
@@ -103,12 +98,7 @@ function App() {
   const [query, setQuery] = useState("")
   // Side effect on query to update searchResults array
   useEffect(() => {
-    console.log("query: ", query)
     setSearchResults(fuse.search(query))
-    console.log("searchResults: ", searchResults)
-
-    // console.log("searchResults length: ", searchResults.length)
-    // setPageCount(Math.ceil(searchResults.length / perPage))
   }, [query])
 
   useEffect(() => {
@@ -197,7 +187,6 @@ const ResultsTable = ({results}) => {
   let headings = []
   let ignoreTitles = []
 
-  console.log("results: ", results)
   if (results.length > 0) {
     // When page is first loaded, no query is selected, but we want to show the entire fish dataset.
     // Need to alter the inital results list to follow formatting of the list returned by the fuse search
@@ -226,8 +215,8 @@ const ResultsTable = ({results}) => {
         (headings.indexOf("seasonality_s") !== (headings.length - 1))) {
       headings.push(headings.splice(headings.indexOf("seasonality_n"), 1)[0])
       headings.push(headings.splice(headings.indexOf("seasonality_s"), 1)[0])
-      console.log(headings.indexOf("seasonality_s"), headings.length - 1)
-      console.log("seasonality moved", headings.indexOf("seasonality_s") !== (headings.length - 1))
+      // console.log(headings.indexOf("seasonality_s"), headings.length - 1)
+      // console.log("seasonality moved", headings.indexOf("seasonality_s") !== (headings.length - 1))
     }
   }
 
