@@ -288,8 +288,8 @@ const ResultsItem = ({item, index}) => {
       {item.image_url &&
         /* ****************************************************** */
         // don't want to send requests for the images in development
-        // <td><Image src={item.image_url} height="100" width="100" rounded></Image></td> 
-        <td><Image src="" height="100" width="100" rounded></Image></td> 
+        <td><Image src={item.image_url} height="100" width="100" rounded></Image></td> 
+        // <td><Image src="" height="100" width="100" rounded></Image></td> 
 
       }
       <td>{item.name}</td>
