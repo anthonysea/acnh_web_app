@@ -1,6 +1,8 @@
 # AC:NH Web App
 
-Little Animal Crossing: New Horizons web application used to display information about fish, bugs, fossils and villagers. Built with React, Fuse.js, Bootstrap, and [AC:NH API](https://github.com/anthonysea/acnh_api)
+Little Animal Crossing: New Horizons web application used to display information about fish, bugs, fossils and villagers. Built with React, Fuse.js, Bootstrap, and Firebase ~~[AC:NH API](https://github.com/anthonysea/acnh_api)~~
+
+Live demo available at https://acnh-web-app.now.sh/
 
 
 ## To-do
